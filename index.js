@@ -10,6 +10,10 @@ app.set('port', 3000)
 
 app.use(express.static(__dirname))
 
+app.get("/", function (req, res) {
+  res.send("<h1>Hello World!</h1>")
+})
+
 let readyNum = 0
 
 io.on('connection', (socket) => {
