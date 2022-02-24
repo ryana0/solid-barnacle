@@ -11,7 +11,7 @@ app.set('port', 3000)
 app.use(express.static(__dirname))
 
 app.get("/", function (req, res) {
-  res.send("<h1>Hello World!</h1>")
+  res.sendFile(__dirname + '/startPage/index.html')
 })
 
 let readyNum = 0
