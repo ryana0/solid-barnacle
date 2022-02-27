@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.8.1/lottie.min.js" integrity="sha512-V1YyTKZJrzJNhcKthpNAaohFXBnu5K9j7Qiz6gv1knFuf13TW/3vpgVVhJu9fvbdW8lb5J6czIhD4fWK2iHKXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="style.css">
     <script src="main.js" defer></script>
 </head>
@@ -15,7 +16,7 @@
             <h1 id="headerText">Wordbomb Web</h1>
         </div>
         <div id="sidebar">
-            
+
         </div>
         <div id="contentInit">
             <img src="" id="avatar">
@@ -29,6 +30,20 @@
             <div id="ready"><h1 id="readyText">Ready Up</h1></div>
             <h1 id="readyNum"></h1>
             <div id="notif"><h1 id="notifText"></h1></div>
+            <div id="words">
+                <input type="text" id="wordsInput">
+            </div>
+            <div id="userDisplay">
+                <svg id="avatarDisplay" src=""></svg>
+            </div>
+            <div id="bombDisplay">
+                <svg width="670" height="608" viewBox="0 0 670 608" fill="none" xmlns="http://www.w3.org/2000/svg" id="bomb" class="">
+                    <path d="M29.6069 154.921C28.5991 151.835 29.193 148.391 31.1452 145.797C129.31 15.3575 196.784 -4.12656 279.383 118.088C281.025 120.517 281.532 123.623 280.719 126.44L274.245 148.885C271.702 157.7 259.474 158.74 255.108 150.671C194.806 39.2244 145.925 57.5989 55.6344 182.633C50.8087 189.316 40.3466 187.811 37.788 179.976L29.6069 154.921Z" fill="#B89F82"/>
+                    <circle cx="420" cy="358" r="240" fill="#292D36" stroke="#3A3E47" stroke-width="20"/>
+                    <path d="M180 167L353.205 66.9999L388 136L226 236L180 167Z" fill="#C4C4C4"/>
+                    </svg>
+                    <img src="explosion.gif" id="boom">
+            </div>
         </div>
     </div>
 </body>

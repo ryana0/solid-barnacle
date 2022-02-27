@@ -16,9 +16,44 @@ app.get('/', (req, res) => {
 
 let readyNum = 0
 
+function game() {
+  fuseTime = ((Math.ceil(Math.random() * 3) + 6) * 10) + (Math.ceil(Math.random() * 9))
+
+  fractionTimes = {
+    halfTime: Math.round(fuseTime / 2),
+    quarterTime: Math.round(fuseTime / 4),
+    eighthTime: Math.round(fuseTime / 8)
+  }
+
+  gameTime = fuseTime
+  timePass = setInterval(() => {
+    gameTime--
+  }, 1000);
+
+  gameTick = setInterval(() => {
+    if(gameTime == fractionTimes.halfTime) {
+      io.emit('halfTime')
+
+    } else if (gameTime == fractionTimes.quarterTime) {
+      io.emit('quarterTime')
+
+    } else if (gameTime == fractionTimes.eighthTime) {
+      io.emit('eighthTime')
+
+    } else if (gameTime == 0) {
+      io.emit('explosion')
+      clearInterval(gameTick)
+      clearInterval(timePass)
+
+    }
+  }, 100);
+
+}
+
 io.on('connection', (socket) => {
     socket.on('join', (args) => {
       args.socketId = socket.id
+      console.log(args)
       io.emit('userJoined', args)
       users = JSON.parse(fs.readFileSync(__dirname + '/users.json'))
       users.users.push(args)
@@ -44,6 +79,7 @@ io.on('connection', (socket) => {
       readyNum++
       if(usersNum == readyNum) {
         io.emit('startGame')
+        game()
         io.emit('readyFraction', readyNum + '/' + usersNum)
       } else {
         io.emit('readyFraction', readyNum + '/' + usersNum)

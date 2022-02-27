@@ -40,11 +40,13 @@ socket.on('userDisconnect', (args) => {
     }
 })
 
-avatar.src = "https://avatars.dicebear.com/api/bottts/" + generateSeed() + ".png?textureChance=0"
+avatar.setAttribute('seed', generateSeed())
+avatar.src = "https://avatars.dicebear.com/api/bottts/" + avatar.getAttribute('seed') + ".png?textureChance=0"
 
 const generateNew = document.querySelector('#genNew')
 generateNew.addEventListener('click', () => {
-    avatar.src = "https://avatars.dicebear.com/api/bottts/" + generateSeed() + ".png?textureChance=0"
+    avatar.setAttribute('seed', generateSeed())
+    avatar.src = "https://avatars.dicebear.com/api/bottts/" + avatar.getAttribute('seed') + ".png?textureChance=0"
 })
 
 const contentInit = document.querySelector('#contentInit')
@@ -53,10 +55,12 @@ const header = document.querySelector('#header')
 const sidebar = document.querySelector('#sidebar')
 const main = document.querySelector('#main')
 const join = document.querySelector('#join')
+const bomb = document.querySelector('#bomb')
 join.addEventListener('click', () => {
     user = {
         name: document.querySelector('#nameInput').value,
-        avatar: document.querySelector('#avatar').src
+        avatar: document.querySelector('#avatar').src,
+        seed: document.querySelector('#avatar').getAttribute('seed')
     }
 
     socket.emit("join", user)
@@ -65,6 +69,11 @@ join.addEventListener('click', () => {
     sidebar.classList.add('sideIn')
     header.classList.add('headerCorner')
     content.classList.add('contentIn')
+    bomb.classList.add('showBomb')
+
+    setTimeout(() => {
+        contentInit.remove()
+    }, 100);
 })
 
 const notification = document.querySelector('#notif')
@@ -88,15 +97,48 @@ socket.on('userJoined', (args) => {
 const readyBtn = document.querySelector('#ready')
 const readyNum = document.querySelector('#readyNum')
 readyBtn.addEventListener('click', () => {
-    readyBtn.classList.add('isReady')
-    socket.emit('ready', '')
+    if(!readyBtn.classList.contains('isReady')) {
+        readyBtn.classList.add('isReady')
+        socket.emit('ready', '')
+    }
 })
 
 socket.on('readyFraction', (args) => {
     readyNum.textContent = args
 })
 
+const input = document.querySelector('#wordsInput')
+const boom = document.querySelector('#boom')
+
 socket.on('startGame', () => {
     readyBtn.classList.add('readyOut1')
     readyNum.classList.add('readyOut2')
+    bomb.classList.add('tick')
+    input.classList.add('unlocked')
+})
+
+socket.on('halfTime', () => {
+    bomb.classList.remove('tick')
+    bomb.classList.add('tickHalf')
+})
+
+socket.on('quarterTime', () => {
+    bomb.classList.remove('tickHalf')
+    bomb.classList.add('tickQuarter')
+})
+
+socket.on('eighthTime', () => {
+    bomb.classList.remove('tickQuarter')
+    bomb.classList.add('tickEighth')
+})
+
+socket.on('explosion', () => {
+    main.classList.add('shake')
+    boom.style.visibility = 'visible'
+    setTimeout(() => {
+        bomb.style.display = 'none'
+        setTimeout(() => {
+            boom.style.visibility = 'hidden'
+        }, 300);
+    }, 100);
 })

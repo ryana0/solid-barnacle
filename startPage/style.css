@@ -27,6 +27,28 @@ html, body {
     overflow: hidden;
 }
 
+@keyframes shake {
+    10%, 90% {
+      transform: translate3d(-1px, 3px, 0);
+    }
+    
+    20%, 80% {
+      transform: translate3d(2px, -1px, 0);
+    }
+  
+    30%, 50%, 70% {
+      transform: translate3d(-4px, 4px, 0);
+    }
+  
+    40%, 60% {
+      transform: translate3d(4px, -2px, 0);
+    }
+}
+
+.shake {
+    animation: shake 750ms linear;
+}
+
 #main {
     user-select: none;
     width: 100%;
@@ -46,7 +68,7 @@ html, body {
   }
 
   ::-webkit-scrollbar-track {
-    background: var(--red); 
+    background: var(--bg); 
   }
    
   ::-webkit-scrollbar-thumb {
@@ -122,6 +144,13 @@ html, body {
 .userAvatar {
     background-color: var(--pastel);
     border-radius: 50px;
+    align-self: center;
+}
+
+@media only screen and (max-height: 665px) {
+    .avatar {
+        width: 45% !important;
+    }
 }
 
 .avatar {
@@ -141,6 +170,12 @@ html, body {
 .contentOut {
     grid-column: 2 !important;
     animation: contentOut 500ms forwards ease-in-out;
+}
+
+@media only screen and (max-height: 665px) {
+    #contentInit {
+        overflow-y: scroll;
+    }
 }
 
 #contentInit {
@@ -224,15 +259,16 @@ html, body {
     animation: contentIn 500ms ease-in-out forwards;
     grid-row: 2 !important;
     grid-column: 1 !important;
+    display: grid !important;
 }
 
 #content {
     width: 100%;
     height: 100%;
-    display: grid;
+    display: none;
     grid-column: 1;
     grid-row: 2;
-    grid-template-columns: 1fr 1fr 30%;
+    grid-template-columns: 1.5fr 1.75fr;
     grid-template-rows: 1fr 25% 1fr;
     transform: translateY(100%);
 }
@@ -255,19 +291,21 @@ html, body {
 
 #notif {
     border-radius: 1000px;
+    position: absolute;
     grid-column: 3;
     grid-row: 3;
-    width: 100%;
+    width: 25rem;
     height: 40%;
     background-color: var(--bg2);
     justify-self: end;
     align-self: flex-end;
-    margin-bottom: 4%;
-    margin-right: 2%;
+    margin-bottom: 2rem;
+    margin-right: 1rem;
     display: table;
     text-align: center;
     color: white;
-    transform: translateX(120%)
+    transform: translateX(120%);
+    z-index: 5;
 }
 
 #notif h1 {
@@ -299,7 +337,7 @@ html, body {
     background-color: var(--pastel);
     grid-row: 3;
     grid-column: 1;
-    width: 60%;
+    width: 45%;
     height: 30%;
     border-radius: 1000px;
     align-self: flex-end;
@@ -310,6 +348,7 @@ html, body {
     color: var(--red);
     font-size: 2vw;
     transition: color 250ms ease-in-out, background 250ms ease-in-out;
+    z-index: 5;
 }
 
 .isReady {
@@ -335,5 +374,120 @@ html, body {
     font-size: 3vw;
     align-self: flex-end;
     margin-bottom: 4%;
-    margin-left: 68%;
+    margin-left: 52.5%;
+}
+
+#bombSection {
+    grid-column: 1/4;
+    grid-row: 1/4;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-rows: 20% 50% 30%;
+    grid-template-columns: 100%;
+}
+
+#userDisplay {
+    grid-column: 1;
+    grid-row: 1/4;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-rows: 80% 20%;
+    grid-template-columns: 20% 80%;
+}
+
+#bombDisplay {
+    grid-column: 2;
+    grid-row: 1/4;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    display: grid;
+    grid-template-columns: 10% 70% 20%;
+    grid-template-rows: 70% 30%;
+}
+
+#bomb {
+    grid-column: 2;
+    grid-row: 1;
+    height: 100%;
+    width: auto;
+    visibility: hidden;
+    max-width: 75%;
+}
+
+#boom {
+    grid-column: 2;
+    grid-row: 1;
+    height: 100%;
+    width: 75%;
+    visibility: hidden;
+    z-index: 3;
+}
+
+@keyframes tick {
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.showBomb {
+    visibility: visible !important;
+}
+
+.tick {
+    animation: tick 750ms ease-out infinite;
+}
+
+.tickHalf {
+    animation: tick 500ms ease-out infinite;
+}
+
+.tickQuarter {
+    animation: tick 350ms ease-out infinite;
+}
+
+.tickEighth {
+    animation: tick 250ms ease-out infinite;
+}
+
+#words {
+    grid-row: 3;
+    grid-column: 1/3;
+    width: 40%;
+    height: 30%;
+    justify-self: center;
+    align-self: flex-end;
+    margin-bottom: 2%;
+    z-index: 5;
+}
+
+#wordsInput {
+    width: 100%;
+    height: 100%;
+    outline: none;
+    border-radius: 1000px;
+    padding-left: 5%;
+    font-size: 2vw;
+    color: white;
+    background-color: #3a3e47;
+    user-select: none;
+}
+
+.unlocked {
+    background-color: #292d36 !important;
+    user-select: all !important;
+}
+
+#avatarDisplay {
+    justify-self: center;
+    align-self: center;
+    width: 60%;
+    height: 60%;
+    grid-column: 2;
+    grid-row: 1;
 }
