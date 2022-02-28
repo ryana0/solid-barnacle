@@ -5,6 +5,13 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 const fs = require('fs')
+const Typo = require('typo-js')
+const dictionary = new Typo(["en_US"])
+const letterPairs = ['th', 'he', 'an', 'in', 'er', 'nd', 're', 'ed', 'es', 'ou', 'to', 'ha', 'en', 'ea', 'st', 'nt', 'on', 'at', 'hi', 'as', 'it', 'ng', 'is', 'or', 'et', 'of', 'ti', 'ar', 'te', 'se', 'me', 'sa', 'ne', 'wa', 've', 'le', 'no', 'ta', 'al', 'de', 'ot', 'so', 'dt', 'll', 'tt', 'el', 'ro', 'ad', 'di', 'ew', 'ra', 'ri', 'sh' ]
+// 53 pairs
+function randomLetterPair() {
+  return letterPairs[Math.round(Math.random() * 52)]
+}
 
 app.set('port', 3000)
 
@@ -18,6 +25,13 @@ let readyNum = 0
 
 function game() {
   fuseTime = ((Math.ceil(Math.random() * 3) + 6) * 10) + (Math.ceil(Math.random() * 9))
+  users = JSON.parse(fs.readFileSync(__dirname + '/users.json'))
+  userCount = users.users.length
+  turn = 0
+
+  io.emit('nextTurn', users.users[0])
+  io.emit('letterPair', randomLetterPair())
+  io.to(users.users[0].socketId).emit('yourTurn')
 
   fractionTimes = {
     halfTime: Math.round(fuseTime / 2),
@@ -31,6 +45,8 @@ function game() {
   }, 1000);
 
   gameTick = setInterval(() => {
+    users = JSON.parse(fs.readFileSync(__dirname + '/users.json'))
+    userCount = users.users.length
     if(gameTime == fractionTimes.halfTime) {
       io.emit('halfTime')
 
@@ -44,10 +60,10 @@ function game() {
       io.emit('explosion')
       clearInterval(gameTick)
       clearInterval(timePass)
-
     }
   }, 100);
 
+  
 }
 
 io.on('connection', (socket) => {
@@ -83,6 +99,11 @@ io.on('connection', (socket) => {
         io.emit('readyFraction', readyNum + '/' + usersNum)
       } else {
         io.emit('readyFraction', readyNum + '/' + usersNum)
+      }
+    })
+    socket.on('typing', (args) => {
+      if(dictionary.check(args)) {
+        console.log(args + ' is a word!')
       }
     })
 });

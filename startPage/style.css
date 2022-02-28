@@ -393,8 +393,31 @@ html, body {
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template-rows: 80% 20%;
+    grid-template-rows: 60% 20% 20%;
     grid-template-columns: 20% 80%;
+}
+
+#avatarDisplay {
+    justify-self: center;
+    align-self: flex-end;
+    width: 50%;
+    height: auto;
+    grid-column: 2;
+    grid-row: 1;
+}
+
+#avatarDisplay image {
+    width: 100%;
+    height: 100%;
+}
+
+#currentUser {
+    grid-row: 2;
+    grid-column: 2;
+    color: white;
+     font-size: 2.5vw;
+     justify-self: center;
+     align-self: center;
 }
 
 #bombDisplay {
@@ -463,7 +486,8 @@ html, body {
     justify-self: center;
     align-self: flex-end;
     margin-bottom: 2%;
-    z-index: 5;
+    z-index: 3;
+    user-select: none;
 }
 
 #wordsInput {
@@ -476,18 +500,4 @@ html, body {
     color: white;
     background-color: #3a3e47;
     user-select: none;
-}
-
-.unlocked {
-    background-color: #292d36 !important;
-    user-select: all !important;
-}
-
-#avatarDisplay {
-    justify-self: center;
-    align-self: center;
-    width: 60%;
-    height: 60%;
-    grid-column: 2;
-    grid-row: 1;
 }

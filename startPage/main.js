@@ -114,7 +114,6 @@ socket.on('startGame', () => {
     readyBtn.classList.add('readyOut1')
     readyNum.classList.add('readyOut2')
     bomb.classList.add('tick')
-    input.classList.add('unlocked')
 })
 
 socket.on('halfTime', () => {
@@ -141,4 +140,25 @@ socket.on('explosion', () => {
             boom.style.visibility = 'hidden'
         }, 300);
     }, 100);
+})
+
+const avatarImage = document.querySelector('#avatarImage')
+const currentUser = document.querySelector('#currentUser')
+socket.on('nextTurn', (args) => {
+    avatarImage.setAttribute('href', "https://avatars.dicebear.com/api/bottts/" + args.seed + ".svg?textureChance=0")
+    currentUser.textContent = args.name
+})
+
+socket.on('yourTurn', () => {
+    input.style.background = '#292d36 !important'
+    input.disabled = false
+})
+
+socket.on('letterPair', (args) => {
+    
+})
+
+input.addEventListener('change', () => {
+    console.log('wheeeeeeeeeee')
+    socket.emit('typing', input.value)
 })
