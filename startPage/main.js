@@ -109,7 +109,6 @@ socket.on('readyFraction', (args) => {
 
 const input = document.querySelector('#wordsInput')
 const boom = document.querySelector('#boom')
-
 socket.on('startGame', () => {
     readyBtn.classList.add('readyOut1')
     readyNum.classList.add('readyOut2')
@@ -142,37 +141,81 @@ socket.on('explosion', () => {
     }, 100);
 })
 
+const keypair1 = document.querySelector('#key1')
+const keypair2 = document.querySelector('#key2')
 const avatarImage = document.querySelector('#avatarImage')
 const currentUser = document.querySelector('#currentUser')
 socket.on('nextTurn', (args) => {
-    avatarImage.setAttribute('href', "https://avatars.dicebear.com/api/bottts/" + args.seed + ".svg?textureChance=0")
-    currentUser.textContent = args.name
+    avatarImage.setAttribute('href', "https://avatars.dicebear.com/api/bottts/" + args.user.seed + ".svg?textureChance=0")
+    currentUser.textContent = args.user.name
+    keypair1.textContent = args.key1
+    keypair2.textContent = args.key2
+    document.querySelector('#typing').innerHTML = ''
+    input.value = ''
 })
 
-socket.on('yourTurn', () => {
+socket.on('yourTurn', (args) => {
+    keypair1.style.display = 'block'
+    keypair2.style.display = 'block'
+    keypair1.textContent = args.split('')[0]
+    keypair2.textContent = args.split('')[1]
     input.style.background = '#292d36 !important'
     input.disabled = false
-    input.addEventListener('keyup', () => {
-        socket.emit('typing', input.value)
-        console.log(input.value)
+    input.addEventListener('keyup', (e) => {
+        socket.emit('typing', {
+            value: input.value,
+            keypair: args
+        })
+        if(e.keyCode == 13) {
+            socket.emit('turnConfirm')
+            input.disabled = true
+        }
     })
-})
-
-let keypair = ''
-
-socket.on('letterPair', (args) => {
-    keypair = args
 })
 
 socket.on('userTyping', (args) => {
     document.querySelector('#typing').innerHTML = ''
-    turnWord = args.word.split("")
-    if(turnWord.includes(keypair.split('')[0])) {
-        if(turnWord.includes(keypair.split('')[1]) && turnWord.indexOf(keypair.split('')[0]) == turnWord.indexOf(keypair.split('')[1])--) {
+    turnWord = args.word.split('')
 
-        } else {
-
-        }
+    if(args.spellCheck == true) {
+        input.style.border  = 'none'
+    } else {
+        input.style.border  = 'solid 5px red'
+    }
+    if(args.indexKey1 && !args.indexKey2) {
+        turnWord.forEach(value => {
+            letterBox = document.createElement('h1')
+            letterBox.textContent = value
+            letterBox.classList.add('letter')
+            if(turnWord.indexOf(value) == args.indexKey1) {
+                letterBox.classList.add('letterPairValid')
+            } else if (turnWord.indexOf(value) == args.indexKey1 + 1) {
+                letterBox.classList.add('letterPairInvalid')
+            }
+            document.querySelector('#typing').appendChild(letterBox)
+        })
+    } else if (args.indexKey1 && args.indexKey2) {
+        socket.emit('turnDone')
+        turnWord.forEach(value => {
+            letterBox = document.createElement('h1')
+            letterBox.textContent = value
+            letterBox.classList.add('letter')
+            if(turnWord.indexOf(value) == args.indexKey1 || turnWord.indexOf(value) == args.indexKey2) {
+                letterBox.classList.add('letterPairValid')
+            }
+            document.querySelector('#typing').appendChild(letterBox)
+        })
+    } else if (args.indexKey1 == 0) {
+        socket.emit('turnDone')
+        turnWord.forEach(value => {
+            letterBox = document.createElement('h1')
+            letterBox.textContent = value
+            letterBox.classList.add('letter')
+            if(turnWord.indexOf(value) == args.indexKey1 || turnWord.indexOf(value) == args.indexKey2) {
+                letterBox.classList.add('letterPairValid')
+            }
+            document.querySelector('#typing').appendChild(letterBox)
+        })
     } else {
         turnWord.forEach(value => {
             letterBox = document.createElement('h1')

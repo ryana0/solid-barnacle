@@ -23,15 +23,24 @@ app.get('/', (req, res) => {
 
 let readyNum = 0
 
+function nextTurn(users, turn, keypair) {
+  
+  io.emit('nextTurn', {
+    user: users.users[turn],
+    key1: keypair.split('')[0],
+    key2: keypair.split('')[1]
+  })
+  io.to(users.users[turn].socketId).emit('yourTurn', keypair)
+}
+
 function game() {
   fuseTime = ((Math.ceil(Math.random() * 3) + 6) * 10) + (Math.ceil(Math.random() * 9))
   users = JSON.parse(fs.readFileSync(__dirname + '/users.json'))
   userCount = users.users.length
   turn = 0
 
-  io.emit('nextTurn', users.users[0])
-  io.emit('letterPair', randomLetterPair())
-  io.to(users.users[0].socketId).emit('yourTurn')
+  nextTurn(users, turn, randomLetterPair())
+  turn++ 
 
   fractionTimes = {
     halfTime: Math.round(fuseTime / 2),
@@ -57,9 +66,10 @@ function game() {
       io.emit('eighthTime')
 
     } else if (gameTime == 0) {
-      io.emit('explosion')
+      io.emit('explosion', users.users[turn])
       clearInterval(gameTick)
       clearInterval(timePass)
+
     }
   }, 100);
 
@@ -69,6 +79,8 @@ function game() {
 io.on('connection', (socket) => {
     socket.on('join', (args) => {
       args.socketId = socket.id
+      args.score = 0
+      args.done = false
       console.log(args)
       io.emit('userJoined', args)
       users = JSON.parse(fs.readFileSync(__dirname + '/users.json'))
@@ -102,12 +114,75 @@ io.on('connection', (socket) => {
       }
     })
     socket.on('typing', (args) => {
+      words = JSON.parse(fs.readFileSync(__dirname + '/words.json'))
+      console.log(args.value.toString().split(''))
+      if(dictionary.check(args.value.toString()) && !words.words.includes(args.value)) {
         wordPkg = {
-          word: args,
-          valid: true
+          word: args.value,
+          valid: true,
+          spellCheck: true
+        }
+        turnWord = args.value.toString().split('')
+        if(turnWord.includes(args.keypair.split('')[0])) {
+          if(turnWord.includes(args.keypair.split('')[1]) && turnWord.indexOf(args.keypair.split('')[0]) + 1 == turnWord.indexOf(args.keypair.split('')[1])) {
+            users = JSON.parse(fs.readFileSync(__dirname + '/users.json'))
+            wordPkg.indexKey1 = turnWord.indexOf(args.keypair.split('')[0])
+            wordPkg.indexKey2 = turnWord.indexOf(args.keypair.split('')[1])
+            io.emit('userTyping', wordPkg)
+            words.words.push(args.value)
+            fs.writeFileSync(__dirname + '/words.json', JSON.stringify(words))
+          } else {
+            wordPkg.indexKey1 = turnWord.indexOf(args.keypair.split('')[0])
+            wordPkg.indexKey2 = undefined
+            io.emit('userTyping', wordPkg)
+          }
+        }
+      } else {
+        wordPkg = {
+          word: args.value,
+          valid: false,
+          spellCheck: false
         }
         io.emit('userTyping', wordPkg)
-        console.log(dictionary.check('hello'))
+      }
+    })
+    socket.on('turnDone', () => {
+      users = JSON.parse(fs.readFileSync(__dirname + '/users.json'))
+      for(i = 0; i < users.users.length; i++) {
+        if(users.users[i].socketId == socket.id) {
+          users.users[i].done = true
+          fs.writeFileSync(__dirname + '/users.json', JSON.stringify(users))
+        }
+      }
+  
+    })
+  
+    socket.on('turnConfirm', () => {
+      users = JSON.parse(fs.readFileSync(__dirname + '/users.json'))
+      for(i = 0; i < users.users.length; i++) {
+        if(users.users[i].done && users.users[i].socketId == socket.id) {
+          if(turn == userCount) {
+            turn = 0
+            nextTurn(users, turn, randomLetterPair())
+            turn++
+          } else {
+            nextTurn(users, turn, randomLetterPair())
+            turn++
+          }
+      
+          for(j = 0; j < users.users.length; j++) {
+            if(users.users[j].socketId == socket.id) {
+              users.users[j].score = users.users[j].score + 10
+              users.users[j].done = false
+              console.log('added 10 points to ' + users.users[j].name + '!')
+            }
+          }
+          fs.writeFileSync(__dirname + '/users.json', JSON.stringify(users))
+        } else {
+          console.log(users.users[i].done)
+          console.log('not worthy L')
+        }
+      }
     })
 });
 
@@ -115,6 +190,9 @@ server.listen(process.env.PORT || 3000, () => {
   console.log('go to http://localhost:3000/startPage/')
   empty = {
     users: []
+  }
+  emptyWords = {
+    words: []
   }
   fs.writeFileSync(__dirname + '/users.json', JSON.stringify(empty))
 })
