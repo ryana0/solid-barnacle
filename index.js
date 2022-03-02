@@ -107,7 +107,7 @@ io.on('connection', (socket) => {
           valid: true
         }
         io.emit('userTyping', wordPkg)
-      
+        console.log(dictionary.check('hello'))
     })
 });
 
