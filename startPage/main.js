@@ -152,13 +152,33 @@ socket.on('nextTurn', (args) => {
 socket.on('yourTurn', () => {
     input.style.background = '#292d36 !important'
     input.disabled = false
+    input.addEventListener('keyup', () => {
+        socket.emit('typing', input.value)
+        console.log(input.value)
+    })
 })
+
+let keypair = ''
 
 socket.on('letterPair', (args) => {
-    
+    keypair = args
 })
 
-input.addEventListener('change', () => {
-    console.log('wheeeeeeeeeee')
-    socket.emit('typing', input.value)
+socket.on('userTyping', (args) => {
+    document.querySelector('#typing').innerHTML = ''
+    turnWord = args.word.split("")
+    if(turnWord.includes(keypair.split('')[0])) {
+        if(turnWord.includes(keypair.split('')[1]) && turnWord.indexOf(keypair.split('')[0]) == turnWord.indexOf(keypair.split('')[1])--) {
+
+        } else {
+
+        }
+    } else {
+        turnWord.forEach(value => {
+            letterBox = document.createElement('h1')
+            letterBox.textContent = value
+            letterBox.classList.add('letter')
+            document.querySelector('#typing').appendChild(letterBox)
+        })
+    }
 })

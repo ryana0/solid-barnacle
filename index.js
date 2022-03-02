@@ -102,9 +102,12 @@ io.on('connection', (socket) => {
       }
     })
     socket.on('typing', (args) => {
-      if(dictionary.check(args)) {
-        console.log(args + ' is a word!')
-      }
+        wordPkg = {
+          word: args,
+          valid: true
+        }
+        io.emit('userTyping', wordPkg)
+      
     })
 });
 

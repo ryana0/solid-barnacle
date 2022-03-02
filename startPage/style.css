@@ -115,6 +115,47 @@ html, body {
     z-index: 2;
 }
 
+#typing {
+    width: 60%;
+    height: 80%;
+    grid-row: 1;
+    grid-column: 1;
+    justify-self: flex-start;
+    align-self: flex-end;
+    margin-left: 2%;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5em;
+}
+
+@keyframes spawnBounce {
+    50% {
+        transform: translateY(-2%);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.letter {
+    background-color: #3a3e47;
+    width: 5%;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.letterPairValid {
+    background-color: #ffea00 !important;
+    color: #181c25 !important;
+}
+
+.letterPairInvalid {
+    background-color: #df2935 !important;
+}
+
 @keyframes sideIn {
     to {
         transform: translateY(0%);
