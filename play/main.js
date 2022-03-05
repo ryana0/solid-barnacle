@@ -1,5 +1,11 @@
 const socket = io()
 const avatar = document.querySelector('#avatar')
+const sessionStorage = window.sessionStorage
+
+window.onload = () => {
+    window.moveTo(0, 0);
+    window.resizeTo(screen.availWidth, screen.availHeight);
+}
 
 function generateSeed() {
     seed = []
@@ -55,7 +61,7 @@ const header = document.querySelector('#header')
 const sidebar = document.querySelector('#sidebar')
 const main = document.querySelector('#main')
 const join = document.querySelector('#join')
-const bomb = document.querySelector('#bomb')
+const bomb = document.querySelector('.bomb')
 join.addEventListener('click', () => {
     user = {
         name: document.querySelector('#nameInput').value,
@@ -109,10 +115,11 @@ socket.on('readyFraction', (args) => {
 
 const input = document.querySelector('#wordsInput')
 const boom = document.querySelector('#boom')
-socket.on('startGame', () => {
+socket.on('startGame', (args) => {
     readyBtn.classList.add('readyOut1')
     readyNum.classList.add('readyOut2')
     bomb.classList.add('tick')
+    sessionStorage.setItem('users', JSON.stringify(args))
 })
 
 socket.on('halfTime', () => {
@@ -130,9 +137,17 @@ socket.on('eighthTime', () => {
     bomb.classList.add('tickEighth')
 })
 
-socket.on('explosion', () => {
+socket.on('explosion', (args) => {
+    users = JSON.parse(sessionStorage.getItem('users'))
     main.classList.add('shake')
     boom.style.visibility = 'visible'
+    for(i = 0; i < users.length; i++) {
+        for(j = 0; j < users.length; j++) {
+            if(document.querySelector('#sidebar').children[j] == users[i]) {
+                document.querySelector('#sidebar').children[j].style.opacity = '0.5'
+            }
+        }
+    }
     setTimeout(() => {
         bomb.style.display = 'none'
         setTimeout(() => {
@@ -146,29 +161,33 @@ const keypair2 = document.querySelector('#key2')
 const avatarImage = document.querySelector('#avatarImage')
 const currentUser = document.querySelector('#currentUser')
 socket.on('nextTurn', (args) => {
+    keypair1.style.display = 'block'
+    keypair2.style.display = 'block'
     avatarImage.setAttribute('href', "https://avatars.dicebear.com/api/bottts/" + args.user.seed + ".svg?textureChance=0")
     currentUser.textContent = args.user.name
     keypair1.textContent = args.key1
     keypair2.textContent = args.key2
     document.querySelector('#typing').innerHTML = ''
     input.value = ''
+    input.disabled = true
 })
 
 socket.on('yourTurn', (args) => {
-    keypair1.style.display = 'block'
-    keypair2.style.display = 'block'
     keypair1.textContent = args.split('')[0]
     keypair2.textContent = args.split('')[1]
     input.style.background = '#292d36 !important'
     input.disabled = false
+    input.style.border  = 'none'
     input.addEventListener('keyup', (e) => {
+        e.preventDefault()
         socket.emit('typing', {
             value: input.value,
             keypair: args
         })
         if(e.keyCode == 13) {
-            socket.emit('turnConfirm')
-            input.disabled = true
+            socket.emit('turnConfirm', input.value)
+        } else if (e.keyCode == 8) {
+            console.log('asedfiouahebfp')
         }
     })
 })
@@ -224,4 +243,20 @@ socket.on('userTyping', (args) => {
             document.querySelector('#typing').appendChild(letterBox)
         })
     }
+})
+
+socket.on('alreadySaidThatWord', () => {
+    input.style.border = 'solid 5px #ffea00'
+})
+
+const lb = document.querySelector('#lb')
+socket.on('winner', (args) => {
+    console.log(args)
+    args.users.forEach(value => {
+        console.log(value)
+        entry = document.createElement('li')
+        entry.classList.add('listItem')
+        entry.textContent = value.name + ' - ' + value.score + (value.dead == true ? ' (dead imagine)': '')
+        lb.append(entry)
+    })
 })

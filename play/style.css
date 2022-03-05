@@ -489,7 +489,7 @@ html, body {
     grid-template-rows: 70% 30%;
 }
 
-#bomb {
+.bomb {
     grid-column: 2;
     grid-row: 1;
     height: 100%;
@@ -534,6 +534,24 @@ html, body {
 
 .tickEighth {
     animation: tick 250ms ease-out infinite;
+}
+
+#lb {
+    grid-column: 2;
+    grid-row: 1;
+    height: 100%;
+    width: 75%;
+}
+
+@media only screen and (max-height: 665px) {
+    .listItem {
+        font-size: 2rem !important;
+    }
+}
+
+.listItem {
+    color: white;
+    font-size: 3rem;
 }
 
 #words {
