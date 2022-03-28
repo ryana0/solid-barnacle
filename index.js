@@ -109,6 +109,7 @@ io.on('connection', (socket) => {
       usersNum = users.users.length
       readyNum++
       if(usersNum == readyNum) {
+        readyNum = 0
         io.emit('startGame', users)
         game()
         io.emit('readyFraction', readyNum + '/' + usersNum)
